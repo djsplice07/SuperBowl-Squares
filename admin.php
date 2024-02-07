@@ -1,32 +1,29 @@
-<?php 
-session_start();
-@ob_start();
- 
-#www.vnlisting.com
-#Online Super Bowl Squares Script
-#Please read the "Readme.txt for license agreement, installation and usage instructions 
-
-
-if (!isset($_SESSION['VNSB'])) { 
+<?session_start();
 ?>
-        <meta http-equiv="Refresh"content="0;url=adminlogin.php">
+<!-- 
+www.vnlisting.com
+Online Super Bowl Squares Script
+Please read the "Readme.txt for license agreement, installation and usage instructions 
+Version: 4.1	1/9/2012
+-->
+
 <?php
+@ob_start();
+if (!isset($_SESSION['VNSB'])) { 
+	?>
+		<meta http-equiv="Refresh"content="0;url=adminlogin.php">
+	<?
 } else {
 
-	require "includes/dbTables.inc"; 
-        $conn = dbConnection();
-	if (!$conn) {
-	    die("Are you sure your database is setup correctly?   I'm giving up!". mysqli_connect_error());
-	}
-
-        $superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "admin.php");
+	require_once('config.php'); 
 	$confirmation = $_POST['Confirmation'];
 	$SQUARE = $_POST['square'];
 	$CONFIRM = $_POST['confirm'];
 	$RELEASE = $_POST['release'];
 	$NOTES = $_POST['body'];
 
-	require "includes/header.inc"; 
+	require "header.inc";
+	$sb_URL = $record['sb_URL'];
 
 	//$headers = "From: $ADMIN_EMAIL\r\nBcc: $ADMIN_EMAIL\r\n";
 
@@ -36,9 +33,9 @@ if (!isset($_SESSION['VNSB'])) {
 
 	// Additional headers
 	//$headers .= 'To: Mary <mary@example.com>, Kelly <kelly@example.com>' . "\r\n";
-	$headers .= "From: Admin <$ADMIN_EMAIL>" . "\r\n";
+	$headers .= "From: $commissioner <$ADMIN_EMAIL>" . "\r\n";
 	//$headers .= 'Cc: birthdayarchive@example.com' . "\r\n";
-	$headers .= 'Bcc: Admin <$ADMIN_EMAIL>' . "\r\n";
+	$headers .= 'Bcc: $commissioner <$ADMIN_EMAIL>' . "\r\n";
 
 
 				
@@ -69,8 +66,8 @@ if (!isset($_SESSION['VNSB'])) {
 						<select name="square[]" id="square" size="11" multiple>
 							<!--<option value="">Select One</option>-->
 							<?php
-								$sql="SELECT * FROM `VNSB_squares` WHERE NAME!='AVAILABLE' AND NAME!='' AND CONFIRM='0' ORDER BY NAME, SQUARE";
-								$result = mysqli_query($conn, $sql);
+								$query="SELECT * FROM VNSB_squares WHERE NAME!='AVAILABLE' AND NAME!='' AND CONFIRM='0' ORDER BY NAME, SQUARE";
+								$result = mysqli_query($conn, $query);
 								if (!$result) {
 									echo mysqli_error();
 									exit;
@@ -106,16 +103,16 @@ if (!isset($_SESSION['VNSB'])) {
 	 <p>
 	  <table width="50%" border="0" cellspacing="0" cellpadding="0" style="font-family: verdana, arial; font-size: 12px">
 		<tr>
-		<td width="25%"><a href="<?php echo $superbowlURL; ?>" title="Home">Home</a></td>
-		<td width="25%" align="center"><a href="randomnumber.php" title="Random Numbers">Numbers</a></td>
-		<td width="25%" align="center"><a href="scores.php" title="Enter scores">Scores</a></td>
-		<td width="25%" align="right"><a href="adminlogout.php" title="Admin logout">Logout</a></td>
+		<td width="33%" align="left"><a href="<?=$sb_URL?>" title="Home">Home</a></td>
+		<td width="34%" align="center"><a href="randomnumber.php" title="Random Numbers">Numbers</a></td>
+		<td width="34%" align="center"><a href="report.php" title="Balance Sheet">Balance Sheet</a></td>
+		<td width="33%" align="right"><a href="adminlogout.php" title="Admin logout">Logout</a></td>
 		</tr>
 	  </table>
 	</p>
 	<?php 
 	} else {
-		if (count($SQUARE) > 0){
+		if (count((is_countable($SQUARE)?$SQUARE:[])) > 0){
 			$input = "";
 			$whereclause = "(";
 			
@@ -130,9 +127,9 @@ if (!isset($_SESSION['VNSB'])) {
 			$square_list = substr_replace($square_list,"",0,2);
 			//echo $square_list."</br>";
 			
-			$sql="SELECT * FROM `VNSB_squares` WHERE $whereclause";
-			//echo $sql."</br>";
-			$result = mysqli_query($conn, $sql);
+			$query="SELECT * FROM VNSB_squares WHERE $whereclause";
+			//echo $query."</br>";
+			$result = mysqli_query($conn,$query);
 			if (!$result) {
 				echo mysqli_error();
 				exit;
@@ -151,29 +148,32 @@ if (!isset($_SESSION['VNSB'])) {
 			}
 			$USER_EMAIL_LIST = substr_replace($USER_EMAIL_LIST,"",0,1);
 						
-			$bodyMessage = "\r\nNOTIFICATION\r\n";
+			$bodyMessage = "\r\nNOTIFICATION:<br />\r\n";
 			//echo $bodyMessage."</br>";
 			if ($CONFIRM==1 AND $RELEASE!=1) {
-				$sql="UPDATE `VNSB_squares` SET CONFIRM='1' WHERE $whereclause";			
+				$query="UPDATE VNSB_squares SET CONFIRM='1' WHERE $whereclause";			
 				$bodyMessage .= "Your square $square_list is now confirmed.\r\n\n";
 			} else if ($RELEASE==1 AND $CONFIRM!=1) {
-				$sql="UPDATE `VNSB_squares` SET NAME='AVAILABLE', EMAIL='', NOTES='', DATE='', CONFIRM='0' WHERE $whereclause";
-				$bodyMessage .= "Your square $square_list selection is now released due to no payment.\r\n";
-				$bodyMessage .= "If this is an error, please contact me or re-select your square.\r\n\n";
+				$query="UPDATE VNSB_squares SET NAME='AVAILABLE', EMAIL='', NOTES='', DATE='', CONFIRM='0' WHERE $whereclause";
+				$bodyMessage .= "Your square $square_list selection is now released due to non payment.\r\n";
+				$bodyMessage .= "<br />If this is an error, please contact the commissioner or re-select your square/squares. <br />\r\n\n";
+				$bodyMessage .= "<br />Reason given:<br />\r\n";
+				$bodyMessage .= $NOTES."\r\n\n";
 			} else if (($CONFIRM!=1 AND $RELEASE!=1) OR ($RELEASE==1 AND $CONFIRM==1) ) {
 				echo "<p>Must select ONLY one 'Confirm' or 'Release' !!!</p>";
 				echo "<p><a href='javascript:onClick=history.go(-1);'>Back</a></p>";
 				exit;
 			}
-			//echo $sql."</br>";
-			$result = mysqli_query($conn, $sql);
+			//echo $query."</br>";
+			$result = mysqli_query($conn, $query);
 			if (!$result) {
 				echo mysqli_error();
 			} else {
-				$bodyMessage .= $NOTES."\r\n\n";								
-				$bodyMessage .= "Good Luck and enjoy the game.\r\n";
-				$bodyMessage .= "The Commissioner\r\n";
-				$bodyMessage .= "$superbowlURL\r\n";		
+				//$bodyMessage .= "<br />Reason given:<br />\r\n";
+				//$bodyMessage .= $NOTES."\r\n\n";								
+				$bodyMessage .= "<br /><br />Good Luck and enjoy the game!\r\n";
+				$bodyMessage .= "<br />- $commissioner\r\n";
+				$bodyMessage .= "<br /><a href=".$sb_URL.">$sb_URL</a>\r\n";		
 							
 				notify_admin($USER_EMAIL_LIST,$bodyMessage,$headers);
 				echo "<p>Square(s) <b>".$square_list."</b> updated successful</p>";
@@ -182,8 +182,9 @@ if (!isset($_SESSION['VNSB'])) {
 					<p>
 					  <table width=\"50%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"font-family: verdana, arial; font-size: 12px\">
 						<tr>
-						<td width=\"33%\"><a href=\"$superbowlURL\" title=\"Administrator\">Home</a></td>
+						<td width=\"33%\"><a href=\"$sb_URL\" title=\"Administrator\">Home</a></td>
 						<td width=\"34%\" align=\"center\"><a href=\"./admin.php\" title=\"Administrator\">Admin</a></td>
+						<td width=\"34%\" align=\"center\"><a href=\"./report.php\" title=\"Balance Sheet\">Balance Sheet</a></td>
 						<td width=\"33%\" align=\"right\"><a href=\"adminlogout.php\" title=\"Admin logout\">Logout</a></td>
 						</tr>
 					  </table>
@@ -197,19 +198,6 @@ if (!isset($_SESSION['VNSB'])) {
 		}
 
 	} ?>
-	<p align="center" style="">
-		<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-		<input type="hidden" name="cmd" value="_xclick">
-		<input type="hidden" name="business" value="admin@vnlisting.com">
-		<input type="hidden" name="item_name" value="NFL Super Bowl Squares Scripts">
-		<input type="hidden" name="item_number" value="3">
-<!--					<b>Enter Donation amount: $</b><input type="text" name="amount" value="" size=6>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=submit value="click here to Donate">
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-		<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-		<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
-		">
-		</form>
-	</p>
-	<?php require "includes/footer.inc"; 
+	<?php require "footer.inc"; 
 }
 ?>
