@@ -14,30 +14,25 @@ if (!$_SESSION['VNSB']) {
 	<meta http-equiv="Refresh"content="0;url=adminlogin.php">
 <?php
 } else {
-        $superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "emailall.php");
-        
-	require_once('includes/dbTables.inc');
-        $conn = dbConnection();
-        if (!$conn) {
-            die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
-        }
- 
+
+	require_once('config.php'); 
 	$sendemails = $_POST['sendemails'];
+	
+	require "header.inc"; 
+	$sb_URL = $record['sb_URL'];
 
 	$LINKS = "
 		<p>
 		  <table width=\"50%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"font-family: verdana, arial; font-size: 12px\">
 			<tr>
-			<td width=\"33%\"><a href=\"$superbowlURL\" title=\"Home\">Home</a></td>
+			<td width=\"33%\"><a href=\"$sb_URL\" title=\"Home\">Home</a></td>
 			<td width=\"34%\" align=\"center\"><a href=\"admin.php\" title=\"Administrator\">Admin</a></td>
+			<td width=\"34%\" align=\"center\"><a href=\"./report.php\" title=\"Balance Sheet\">Balance Sheet</a></td>
 			<td width=\"33%\" align=\"right\"><a href=\"adminlogout.php\" title=\"Admin logout\">Logout</a></td>
 			</tr>
 		  </table>
 		</p>
 	";
-
-
-	require "includes/header.inc"; 
 
 	function notify_admin ($mailto, $mailmessage, $mail_headers)
 	{
@@ -74,12 +69,12 @@ if (!$_SESSION['VNSB']) {
 		echo "<p>Emails send to:</p>";
 		$bodyMessage = "\r\nNOTIFICATION\r\n";
 		$bodyMessage .= "All squares have been selected and all numbers have been picked and assigned.\r\n";
-		$bodyMessage .= "You can view and print your own sheet at $superbowlURL.\r\n\n";								
-		$bodyMessage .= "Good Luck and enjoy the game.\r\n";
-		$bodyMessage .= "The Commissioner\r\n";
-		$headers = "From: $ADMIN_EMAIL\r\n";
+		$bodyMessage .= "You can view and print your own sheet at $sb_URL.\r\n\n";								
+		$bodyMessage .= "Good Luck and enjoy the game.\r\n\n";
+		$bodyMessage .= "$commissioner\r\n";
+		$headers = "From: $commissioner <$ADMIN_EMAIL>\r\n";
 		$sql="SELECT * FROM VNSB_squares ORDER BY EMAIL";
-		$result = mysqli_query($conn, $sql);
+		$result = mysqli_query($conn,$sql);
 		if (!$result) {
 			echo mysqli_error();
 			exit;
@@ -95,10 +90,10 @@ if (!$_SESSION['VNSB']) {
 
 		echo $LINKS;
 		unset($sendemails);
-		$headers = "From: $ADMIN_EMAIL\r\n";
+		$headers = "From: $commissioner <$ADMIN_EMAIL>\r\n";
 		notify_admin($ADMIN_EMAIL,$bodyMessage,$headers);
 	} ?>
-<?php require "includes/footer.inc"; 
+<?php require "footer.inc"; 
 
 }
 ?>
