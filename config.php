@@ -5,14 +5,15 @@ Please read the "Readme.txt for license agreement, installtion and usage instruc
 -->
 
 <?php
-// Full URL path to your superbowl. ex. www.yoursite.com/superbowl
-$superbowlURL = "http://www.vnlisting.com/superbowl";
 
 //make changes accordingly to your database
-$hostname = "localhost";
-$database = "superbowl";
-$username = "superbowl";
-$password = "password";
-$db = mysql_connect($hostname, $username, $password);
-$db_select = mysql_select_db($database, $db) or mysql_error();
+$hostname = "DB_HOSTNAME";
+$database = "DB_NAME";
+$username = "USERNAME";
+$password = "P4SSW0RD";
+$conn = mysqli_connect($hostname, $username, $password, $database);
+if (!$conn) {
+    die("Connection failed: ".mysqli_connect_error());
+}
+
 ?>
