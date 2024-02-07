@@ -28,10 +28,12 @@ if ($record = mysqli_fetch_assoc($result)) {
 	$WIN_SECOND = $record['Win_second'];
 	$WIN_THIRD = $record['Win_third'];
 	$WIN_FINAL = $record['Win_final'];
+	$DONATION_FINAL = $record['Donation_Final'];
 	$FIRST = (100 * (int)$BET ) * ((int)$WIN_FIRST/100);
 	$SECOND = (100 * (int)$BET ) * ((int)$WIN_SECOND/100);
 	$THIRD = (100 * (int)$BET ) * ((int)$WIN_THIRD/100);
 	$FINAL = (100 * (int)$BET ) * ((int)$WIN_FINAL/100);
+	$DONATION = (100 * (int)$BET ) * ((int)$DONATION_FINAL/100);
 } else {
 	//echo mysql_error();
 	echo "<br/>Sorry, Technical problem occurred... Can't read from database.<br><br> Please notify this site admin</a>";
