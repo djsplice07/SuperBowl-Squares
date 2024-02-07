@@ -2,14 +2,18 @@
 www.vnlisting.com
 Online Super Bowl Squares Script
 Please read the "Readme.txt for license agreement, installation and usage instructions 
-Version: 4.2 	1/23/2013
 -->
 
 <?php
 $query="SELECT * FROM VNSB_settings";
-$result = mysql_query($query);
-if ($record = mysql_fetch_assoc($result)) {
+$result = mysqli_query($conn, $query);
+if ($record = mysqli_fetch_assoc($result)) {
+	$SB_TITLE = $record['sb_title'];
+	$SB_URL = $record['sb_URL'];
+	$commissioner = $record['commissioner'];
+	$SB_EVENT = $record['sb_event'];
 	$SB_DATE = $record['sb_date'];
+	$SB_TIME = $record['sb_time'];
 	$SB_LOGO = $record['sb_logo'];
 	$NFC_TEAM = $record['NFC_team'];
 	$NFC_LOGO = $record['NFC_logo'];
@@ -36,21 +40,34 @@ if ($record = mysql_fetch_assoc($result)) {
 ?>
 <html>
 <head>
-<title>VNLISTING :: Online Super Bowl Squares v4</title>
+<title><?=$SB_TITLE?> <?=$SB_EVENT?> Squares v.<?=$VERSION?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="keywords" content="VNLISTING, superbowl squares, super bowl, nfl squares online, free softwares, free scripts, superbowl scripts"/>
-<meta name="description" content="The one and only fun and free NFL Super Bowl Squares Online."/>
+<meta name="keywords" content="superbowl squares, super bowl, nfl squares online"/>
+<meta name="description" content="NFL Super Bowl Squares Online."/>
 <meta name="robots" content="index,nofollow"/>
 </head>
 <body bgcolor="" link="#0033CC" vlink="#0033CC" alink="#CC0000" leftmargin="0" topmargin="10" marginwidth="0" marginheight="0">
+<img src='images/FootballField_Low.jpg' style='position:fixed;top:0px;left:0px;width:100%;height:100%;z-index:-1;'>
 <!--body bgcolor="#99CCFF" link="#0033CC" vlink="#0033CC" alink="#CC0000" leftmargin="0" topmargin="10" marginwidth="0" marginheight="0"-->
 <center>
 <p>
-<table width="95%" border="0" cellspacing="0" cellpadding="0">
-<tr>
-<td><img src="<?=$SB_LOGO?>" border="0" title="Super Bowl Squares"></td>
-<td align="center"><h2><font color="#009900">Sunday, <?=$SB_DATE?></font></h3></td>
-<td align="right"><img src="<?=$AFC_LOGO?>" border="0" title="<?=$AFC_TEAM?>">&nbsp;&nbsp; <b><font size="+2">vs</font></b> &nbsp;&nbsp;<img src="<?=$NFC_LOGO?>" border="0" title="<?=$NFC_TEAM?>"></td>
-</tr>
+<table width="95%" border="0">
+  <tbody>
+    <tr>
+      <td>&nbsp;</td>
+      <td align="center"><h2><font color="#009900"><?=$SB_TITLE?>&nbsp<?=$SB_EVENT?> Squares</font></h2></td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td align="right"><img src="images/<?=$AFC_LOGO?>" title="<?=$AFC_TEAM?>"></td>
+      <td align="center" width="300"><img src="images/<?=$SB_LOGO?>" title="<?=$SB_EVENT?>"></td>
+      <td align="left"><img src="images/<?=$NFC_LOGO?>" title="<?=$NFC_TEAM?>"></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td align="center"><h2><font color="#009900"><?=$SB_DATE?>&nbsp;|&nbsp;<?=$SB_TIME?></font></h2></td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
 </table>
 <br/>
