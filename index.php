@@ -43,7 +43,7 @@
   }
   
   $scores = mysqli_fetch_assoc($result);
-  	$NFC_FIRST=$scores['NFC_FIRST'];
+      $NFC_FIRST=$scores['NFC_FIRST'];
       $AFC_FIRST=$scores['AFC_FIRST'];
       $NFC_HALF=$scores['NFC_HALF'];
       $AFC_HALF=$scores['AFC_HALF'];
