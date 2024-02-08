@@ -6,15 +6,8 @@ Please read the "Readme.txt for license agreement, installation and usage instru
 
 
 <?php 
-$superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "thankyou.php");
-
-require_once('includes/dbTables.inc'); 
-$conn = dbConnection();
-if (!$conn) {
-    die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
-}
-
-require "includes/header.inc";
+require_once('config.php'); 
+require "header.inc";
 
 //$square = $_POST['square'];
 $sqTotal = $_POST["sqTotal"];
@@ -25,15 +18,22 @@ $sqSelect[$i] = $_POST["square_$i"];
 
 $name = $_POST['realname'];
 $email = $_POST['email'];
+$Bet = $record['Bet'];
 $notes = $_POST['body'];
 $date = date("Y-m-d h:i:s");
 $confirm = $_POST['confirmation'];
+$sb_URL = $record['sb_URL'];
+$commissioner = $record['commissioner'];
+$Grace = $record['Grace'];
+$PayPal = $record['PayPal'];
+$Venmo = $record['Venmo'];
+$CashApp = $record['CashApp'];
 
 for ($i=1;$i<=$sqTotal;$i++) {
 $sql="SELECT * FROM VNSB_squares WHERE SQUARE='".$sqSelect[$i]."'";
-$result = mysqli_query($conn, $sql);
+$result = mysqli_query($conn,$sql);
 if (!$result) {
-	//echo mysqli_error();
+	//echo mysql_error();
 	echo "\n\n\t***** Invalid square selected *****\n\n";
 	echo "<a href='javascript:onClick=history.go(-2);'>Back</a>";
 	exit;
@@ -42,7 +42,7 @@ if (!$result) {
 }
 }
 //continue only if the square is available
-if ($record['DATE'] == "0000-00-00 00:00:00" || $record['DATE'] == NULL) {
+if ($record['DATE'] == "0000-00-00 00:00:00") {
 
 
 //check for required fields
@@ -63,8 +63,7 @@ if (($sqSelect[$i] >= 00 OR $sqSelect[$i] < 100) AND $name != '' AND $email != '
 }
 
 //email
-//$headers = "From: $ADMIN_EMAIL\r\nBcc: $ADMIN_EMAIL\r\n";
-$headers = "From: $ADMIN_EMAIL"."\r\n"."Bcc: $ADMIN_EMAIL";
+    $headers = "From: $commissioner <$ADMIN_EMAIL>\r\nBcc: $commissioner <$ADMIN_EMAIL>\r\n";
 function notify_admin ($mailto, $mailmessage, $mail_headers)
 {
 	mail("$mailto", "Super Bowl Squares", "$mailmessage", "$mail_headers");
@@ -78,11 +77,47 @@ for ($i=1;$i<=$sqTotal;$i++) { $selectedSQUARES .= $sqSelect[$i]." "; }
 	<tr>
 		<td align="center">
 			<p><font size="4" color="#ffcc00"><h2>GOOD LUCK</h2></font></p>				
-			<p>Your request has been recieved and an email was sent to your email address given.</p>
+			<p>Your request has been recieved and an email was sent to your email address given <b>(Please check your junk/spam folder)</b>.</p>
 			<p>The square(s) <strong><font color="#ff0000"><?=$selectedSQUARES?></font></strong> is(are) temporary reserved in your name "<font color="#ff0000"><?=$name?></font>", pending confirmation.</p>
-			<p>IF YOUR PAYMENT CAN NOT BE VERIFIED WITHIN 24 HOURS, YOU WILL LOOSE THE SQUARE(S).</p>								
-			<p>Good Luck and enjoy the game.</p>
-			<p>The Commissioner</p>
+			<p>Please make payment via one of the methods below as soon as possible as to not lose your square!</p>
+		<td align="center">
+	<tr>
+		<td>
+		<br></br>
+			<p><strong>Remember the Rules:</strong></p>
+			<ul>
+			<li><strong><font color="#ff0000">$<?=$Bet?></font></strong> Per square </li>
+			<li>You can buy as many squares as you want</li>
+			<li><strong>Your square(s) is/are not guaranteed until your payment is verified within <?=$Grace?>hours</strong></li>
+			<li>Numbers will be randomly draw and assigned after all squares are taken</li>
+			<li>When confirmed, your square(s) will be changed to&nbsp;<span style="color: #009900;"><strong>GREEN</strong></span></li>
+			<li>Please make payment via the following:
+			<ul>
+			<li>Cash</li>
+			<li>PayPal
+			<ul>
+			<li><?=$PayPal?>  (Use 'Friends and Family')</li>
+			</ul>
+			</li>
+			<li>Venmo
+			<ul>
+			<li><?=$Venmo?></li>
+			</ul>
+			</li>
+			<li>CashApp
+			<ul>
+			<li><?=$CashApp?></li>
+			</ul>
+			</li>
+			</ul>
+			</li>
+			</ul>
+		</td>
+		</tr>
+	<tr>
+		<td>
+			<p>Good Luck and enjoy the game!</p>
+			<p>- <?=$commissioner?></p>
 			<!-- <p>You may make your payment thru Paypal if you preferred. <br/>There will be an additional $1 for each payment up to $20 to cover the charges by Paypal.</p> -->
 			<br/><br/>
 		</td>
@@ -90,23 +125,23 @@ for ($i=1;$i<=$sqTotal;$i++) { $selectedSQUARES .= $sqSelect[$i]." "; }
 </table>
 
 <p style="font-family: verdana, arial; font-size: 12px">
-	<a href="<?=$superbowlURL?>" title="Online Superbowl Squares">Home</a>
+	<a href="<?=$sb_URL?>" title="Online Superbowl Squares">Home</a>
 </p>
 
 <?php
-$bodyMessage = "\nREMINDER\r\n";
+$bodyMessage = "\nREMINDER:\r\n";
 $bodyMessage .= "Square(s) $selectedSQUARES is(are) temporary reserved in your name \"$name\", pending confirmation.\r\n";
-$bodyMessage .= "IF YOUR PAYMENT CAN NOT BE VERIFIED WITHIN 24 HOURS, YOU WILL LOOSE THE SQUARE(S).\r\n\n";
-$bodyMessage .= "Good Luck and enjoy the game.\r\n";
-$bodyMessage .= "The Commissioner\r\n";
-$bodyMessage .= "$superbowlURL\r\n\n";
+$bodyMessage .= "IF YOUR PAYMENT CAN NOT BE VERIFIED WITHIN \"$Grace\" HOURS, YOU MAY LOSE YOUR SQUARE(S).\r\n\n";
+$bodyMessage .= "Good Luck and enjoy the game!\r\n";
+$bodyMessage .= "- $commissioner\r\n\n";
+$bodyMessage .= "$sb_URL\r\n\n";
 //$bodyMessage .= "You may make your payment thru Paypal if you like. \rThere will be an additional $1 for each payment up to $20 to cover the charges by Paypal.\r\n";
-$bodyMessage .= "\r\n\nNOTES TO ADMIN:\r\n";
+$bodyMessage .= "\r\n\nNote to the commissioner:\r\n";
 $bodyMessage .= $notes."\r\n\n";
 
 notify_admin($email,$bodyMessage,$headers);
 
-require "includes/footer.inc"; ?>
+require "footer.inc"; ?>
 
 <?php
 } else {
