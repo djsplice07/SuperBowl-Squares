@@ -1,46 +1,27 @@
-<?php
-@ob_start();
-session_start();
-if (!$_SESSION['VNSB']) { 
-?>
-	<meta http-equiv="Refresh"content="0;url=adminlogin.php">
-<?php
-} 
-?>
-
 <!-- 
 www.vnlisting.com
 Online Super Bowl Squares Script
 Please read the "Readme.txt for license agreement, installation and usage instructions 
 Version: 4.3 	1/29/2019
 -->
-
-
 <?php 
- $superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "scores.php");
+require_once('config.php'); 
+require "header.inc";
+
+$superbowlURL = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].trim($_SERVER['PHP_SELF'], "scores.php");
 
 function email_notify ($mailto)
 {
 	$mail_headers = "From: $ADMIN_EMAIL\r\n";
 	$mail_subject = "Super Bowl Squares :: You are the winner";
 	$mailmessage = "\r\nCongratulations\r\n";
-	$mailmessage .= "You are the lucky winner for our Super Bowl Squares for $SB_DATE \r\n\n";								
+	$mailmessage .= "You are one of the lucky winners for our Super Bowl Squares for $SB_DATE \r\n\n";								
 	$mailmessage .= "Contact us to collect your winning.\r\n";
-	$mailmessage .= "The Commissioner\r\n";
+	$mailmessage .= "$commissioner -The Commissioner\r\n";
 	
 	mail("$mailto", "$mail_subject", "$mailmessage", "$mail_headers");
 }
-	
-require_once('includes/dbTables.inc');
-$conn = dbConnection();
-if (!$conn) {
-    die("Are you sure your database is setup correctly?   I'm giving up!".mysqli_connect_error());
-}
  
-require "includes/header.inc"; 
-
-$EMAIL = $_REQUEST['m'];
-
 $NFC = array();
 $AFC = array();
 $NAME = array();
@@ -106,8 +87,7 @@ while ($record = mysqli_fetch_assoc($result)) {
     $NAME[$record['SQUARE']] = $record['NAME'];
     $EMAIL[$record['SQUARE']] = $record['EMAIL'];
 }
-
-
+	
 // Admin add scores
 if ($ADD_SCORES) {
 ?>
@@ -143,16 +123,37 @@ if ($ADD_SCORES) {
 <?php
 }
 ?>
-
-<p>
+<?
+$sql="SELECT * FROM VNSB_settings";
+$result = mysqli_query($conn,$sql);
+#$dbresult = mysql_query($query);
+if ($record = mysqli_fetch_assoc($result)) {
+    $BET = $record['Bet'];
+    $WIN_FIRST = $record['Win_first'];
+	$WIN_SECOND = $record['Win_second'];
+	$WIN_THIRD = $record['Win_third'];
+	$WIN_FINAL = $record['Win_final'];
+	$WIN_FINAL = $record['Win_final'];
+	//$DONATION_FINAL = $record['Donation_Final'];
+	$FIRST = (100 * (int)$BET ) * ((int)$WIN_FIRST/100);
+	$SECOND = (100 * (int)$BET ) * ((int)$WIN_SECOND/100);
+	$THIRD = (100 * (int)$BET ) * ((int)$WIN_THIRD/100);
+	$FINAL = (100 * (int)$BET ) * ((int)$WIN_FINAL/100);
+    //$DONATION = (100 * (int)$BET ) * ((int)$DONATION_FINAL/100);
+} else {
+	echo mysqli_error();
+	exit;
+}
+?>
 <table width="50%" style="font-family: Verdana,Ariel; font-size: 12px; border: #009900 1px solid">
 <tr><td colspan="4" align="center"><strong>The Payout:</strong></td></tr>
-<tr>
+<tr border: 1px>
 <td>
 <li>End of first quarter: </li>
 <li>End of second quarter: </li>
 <li>End of third quarter: </li>
 <li>Final Score: </li>
+<!-- <li>Donation:</li> -->
 </td>
 <td>
 <dt><strong><font color="#232B85"><?=$NFC_FIRST?></font> &nbsp;&nbsp;&nbsp; <font color="#DB2824"><?=$AFC_FIRST?></font></strong></dt>
@@ -165,12 +166,14 @@ if ($ADD_SCORES) {
 <dt><?=$WIN_SECOND?>%</dt>
 <dt><?=$WIN_THIRD?>%</dt>
 <dt><?=$WIN_FINAL?>%</dt>
+<!-- <dt><?=$DONATION_FINAL?>%</dt> -->
 </td>
 <td width="15%" align="right" style="font-weight: 600px">
 <dt><strong>$<?=$FIRST?></strong></dt>
 <dt><strong>$<?=$SECOND?></strong></dt>
 <dt><strong>$<?=$THIRD?></strong></dt>
 <dt><strong>$<?=$FINAL?></strong></dt>
+<!-- <dt><strong>$<?=$DONATION?></strong></dt> -->
 </td>
 </tr>
 </table>
@@ -188,22 +191,22 @@ for ($y=1; $y<=10; $y++) {
 	if ( ($NFC[$x] == substr($NFC_FIRST, -1)) && ($AFC[$y] == substr($AFC_FIRST, -1)) && ( $NFC_FIRST && $AFC_FIRST ) ) { 
 		echo "<p>1st Quarter Winner ($NFC[$x],$AFC[$y]) &nbsp;&nbsp;&nbsp; Square #$square (".$NAME[$square].")</p>"; 
 		mysqli_query("UPDATE VNSB_squares SET FIRST='1' WHERE SQUARE='$square' LIMIT 1");
-		if ( $EMAIL=="yes" ) { notify_email($EMAIL[$square]); }
+		if ( $EMAIL=="yes" ) { email_notify($EMAIL[$square]); }
 	}
 	if ( ($NFC[$x] == substr($NFC_HALF, -1)) && ($AFC[$y] == substr($AFC_HALF, -1)) && ( $NFC_HALF && $AFC_HALF ) ) { 
 		echo "<p>Halftime Winner ($NFC[$x],$AFC[$y]) &nbsp;&nbsp;&nbsp; Square #$square (".$NAME[$square].")</p>"; 
 		mysqli_query("UPDATE VNSB_squares SET HALF='1' WHERE SQUARE='$square' LIMIT 1");
-		if ( $EMAIL=="yes" ) { notify_email($EMAIL[$square]); }
+		if ( $EMAIL=="yes" ) { email_notify($EMAIL[$square]); }
 	}
 	if ( ($NFC[$x] == substr($NFC_THIRD, -1)) && ($AFC[$y] == substr($AFC_THIRD, -1)) && ( $NFC_THIRD && $AFC_THIRD ) ) { 
 		echo "<p>3rd Quarter Winner ($NFC[$x],$AFC[$y]) &nbsp;&nbsp;&nbsp; Square #$square (".$NAME[$square].")</p>"; 
 		mysqli_query("UPDATE VNSB_squares SET THIRD='1' WHERE SQUARE='$square' LIMIT 1");
-		if ( $EMAIL=="yes" ) { notify_email($EMAIL[$square]); }
+		if ( $EMAIL=="yes" ) { email_notify($EMAIL[$square]); }
 	}
 	if ( ($NFC[$x] == substr($NFC_FINAL, -1)) && ($AFC[$y] == substr($AFC_FINAL, -1) && ( $NFC_FINAL && $AFC_FINAL )) ) { 
 		echo "<p>Final Winner ($NFC[$x],$AFC[$y]) &nbsp;&nbsp;&nbsp; Square #$square (".$NAME[$square].")</p>"; 
 		mysqli_query("UPDATE VNSB_squares SET FINAL='1' WHERE SQUARE='$square' LIMIT 1");
-		if ( $EMAIL=="yes" ) { notify_email($EMAIL[$square]); }
+		if ( $EMAIL=="yes" ) { email_notify($EMAIL[$square]); }
 	}
 	$cnt++;
     }
@@ -214,12 +217,20 @@ echo "</p>";
 <p><br><br>
   <table width="50%" border="0" cellspacing="0" cellpadding="0" style="font-family: verdana, arial; font-size: 12px">
 	<tr>
-	<td width="25%"><a href="<?=$superbowlURL?>" title="Administrator">Home</a></td>
+	<td width="25%"><a href="<?=$superbowlURL?>" title="Home">Home</a></td>
 	<td width="25%" align="center"><a href="admin.php" title="Administrator">Admin</a></td>
-        <td width="25%" align="center"><a href="scores.php" title="Enter scores">Scores</a></td>
+	<td width="25%" align="center"><a href="report.php" title="Balance Sheet">Balance Sheet</a></td>
+    <td width="25%" align="center"><a href="randomnumbers.php" title="Number Generator">Number Generator</a></td>
+    <td width="25%" align="center"><a href="scores.php" title="Enter scores">Scores</a></td>
 	<td width="25%" align="right"><a href="adminlogout.php" title="Admin logout">Logout</a></td>
 	</tr>
   </table>
 </p>
+<br />
+<br />
+<br />
+<br />
+<br />
+
 					
-<?php require "includes/footer.inc"; ?>
+<?php require "footer.inc"; ?>
