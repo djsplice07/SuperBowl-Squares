@@ -25,15 +25,17 @@ if (!$_SESSION['VNSB']) {
 		<p>
 		  <table width=\"50%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"font-family: verdana, arial; font-size: 12px\">
 			<tr>
-			<td width=\"33%\"><a href=\"$superbowlURL\" title=\"Online Superbowl Squares\">Home</a></td>
+			<td width=\"33%\"><a href=\"$sb_URL\" title=\"Home\">Home</a></td>
 			<td width=\"34%\" align=\"center\"><a href=\"./admin.php\" title=\"Administrator\">Admin</a></td>
+			<td width=\"34%\" align=\"center\"><a href=\"./randomnumber.php\" title=\"Number Generator\">Number Generator</a></td>
+			<td width=\"34%\" align=\"center\"><a href=\"./report.php\" title=\"Balance Sheet\">Balance Sheet</a></td>
 			<td width=\"33%\" align=\"right\"><a href=\"adminlogout.php\" title=\"Admin logout\">Logout</a></td>
 			</tr>
 		  </table>
 		</p>
 	";
 
-	require "includes/header.inc"; 
+	require "header.inc"; 
 
 	echo "
 	<h1>Numbers Assignment</h1>
