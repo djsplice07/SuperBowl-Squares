@@ -1,8 +1,22 @@
-<!--
+<?php
+@ob_start();
+session_start();
+if (!$_SESSION['VNSB']) { 
+?>
+	<meta http-equiv="Refresh"content="0;url=adminlogin.php">
+<?php
+} 
+?>
+
+<!-- 
+www.vnlisting.com
 Online Super Bowl Squares Script
-Please read the Readme.txt for license agreement, installation and usage instructions
+Please read the "Readme.txt for license agreement, installation and usage instructions 
+Version: 4.3 	1/29/2019
 -->
-<?php require_once('config.php');
+
+<?php
+require_once('config.php');
 
 require "header.inc";
 
@@ -89,17 +103,18 @@ while ($record = mysqli_fetch_assoc($result))
 }
 
 ?>
-<p><br><br>
-  <table width="50%" border="0" cellspacing="0" cellpadding="0" style="font-family: verdana, arial; font-size: 12px">
-	<tr>
-	<td width="25%"><a href="<?=$superbowlURL?>" title="Home">Home</a></td>
-	<td width="25%" align="center"><a href="admin.php" title="Administrator">Admin</a></td>
-	<td width="25%" align="center"><a href="report.php" title="Balance Sheet">Balance Sheet</a></td>
-  <td width="25%" align="center"><a href="randomnumbers.php" title="Number Generator">Number Generator</a></td>
-  <td width="25%" align="center"><a href="scores.php" title="Enter scores">Scores</a></td>
-	<td width="25%" align="right"><a href="adminlogout.php" title="Admin logout">Logout</a></td>
-	</tr>
-  </table>
-</p>
-
+ </TABLE>
+ <br />
+ <br />
+ <br />
+<table width="50%" border="0" cellspacing="0" cellpadding="0" style="font-family: verdana, arial; font-size: 12px">
+  <tr>
+    <td width="16%"><a href="<?=$superbowlURL?>" title="Home">Home</a></td>
+    <td width="16%" align="center"><a href="admin.php" title="Administrator">Admin</a></td>
+    <td width="16%" align="center"><a href="report.php" title="Balance Sheet">Balance Sheet</a></td>
+    <td width="16%" align="center"><a href="randomnumber.php" title="Number Generator">Number Generator</a></td>
+    <td width="16%" align="center"><a href="scores.php" title="Enter scores">Scores</a></td>
+    <td width="16%" align="right"><a href="adminlogout.php" title="Admin logout">Logout</a></td>
+  </tr>
+</table>
 <?php require "footer.inc"; ?>
