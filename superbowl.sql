@@ -77,10 +77,10 @@ CREATE TABLE IF NOT EXISTS `VNSB_settings` (
   `Win_second` tinyint(2) NOT NULL DEFAULT '25' COMMENT 'Percent that goes to winner of 2nd quarter',
   `Win_third` tinyint(2) NOT NULL DEFAULT '20' COMMENT 'Percent that goes to winner of 3rd quarter',
   `Win_final` tinyint(2) NOT NULL DEFAULT '35' COMMENT 'Percent that goes to winner of final score',
-  `Donation_Final` tinyint(2) NOT NULL DEFAULT '' COMMENT 'Percent that will go to the charity/donation; This can be 0',
+  `Donation_Final` tinyint(2) NOT NULL DEFAULT '0' COMMENT 'Percent that will go to the charity/donation. This can be 0',
   `Version` char(3) NOT NULL DEFAULT '',
   `Admin_email` varchar(30) NOT NULL DEFAULT 'admin@email.com' COMMENT 'Admin login email',
-  `Admin_pwd` varchar(8) NOT NULL DEFAULT 'password' COMMENT 'Admin login password'
+  `Admin_pwd` varchar(8) NOT NULL DEFAULT 'password' COMMENT 'Admin login password',
   `Grace` int(11) DEFAULT NULL COMMENT 'Grace period for payment in hours',
   `Venmo` varchar(20) DEFAULT NULL COMMENT 'Venmo address. Start with ''@''',
   `PayPal` varchar(50) DEFAULT NULL COMMENT 'PayPal link or email address',
@@ -93,8 +93,8 @@ CREATE TABLE IF NOT EXISTS `VNSB_settings` (
 -- Dumping data for table `VNSB_settings`
 -- 
 
-INSERT INTO `VNSB_settings` VALUES ('Host Name', 'Commissioner Name', 'Superbowl LVIII', 'Sunday February 11, 2024', '3:30 PM', 'superbowlnumber.png', 'NFC Team', 'nfc-generic.png', 'AFC Team', 'afc-generic.png', '5.00', 20, 25, 20, 35, 0, '5.1', 'admin@yourdomain.com', 'password');
-INSERT INTO `VNSB_settings` VALUES ('Organization Name', 'https://www.yoursite.com/superbowl', 'Commissioner Name', 'Super Bowl LVIII', 'February 11, 2024', '3:30 PST', 'superbowlnumber.png', '49ers', 'nfc-team.png', 'Chiefs', 'afc-team.png', '5.00', 20, 25, 20, 35, 0, '5.1', 'admin email', 'admin pass', 24, '@venmo', 'paypal@email.com', '$cashapp', 'zelle@email.com');
+INSERT INTO `VNSB_settings` VALUES ('Host Name', 'Commissioner Name', 'Superbowl LVIII', 'Sunday February 11, 2024', '3:30 PM', 'superbowlnumber.png', 'NFC Team', 'nfc-generic.png', 'AFC Team', 'afc-generic.png', '5.00', 20, 25, 20, 35, 0, '5.1', 'admin@yourdomain.com', 'password', 24, '@venmo', 'paypal@email.com', '$cashapp', 'zelle@email.com');
+
 -- --------------------------------------------------------
 
 -- 
