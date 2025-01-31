@@ -34,7 +34,7 @@
   	exit;
   }
   ?>
-<?
+<?php
   $sql="SELECT * FROM VNSB_scores ORDER BY ID DESC LIMIT 1";
   $result = mysqli_query($conn, $sql);
   if (!$result) {
@@ -52,7 +52,7 @@
       $NFC_FINAL=$scores['NFC_FINAL'];
       $AFC_FINAL=$scores['AFC_FINAL'];
   ?>
-<?
+<?php
   //count of remaining squares
   $result=mysqli_query($conn,"SELECT COUNT(*) as 'total' FROM VNSB_squares WHERE CONFIRM='0'");
   $data=mysqli_fetch_assoc($result);
